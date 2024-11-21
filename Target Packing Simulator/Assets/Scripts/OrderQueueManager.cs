@@ -24,9 +24,10 @@ public class OrderQueueManager : MonoBehaviour
 
             for (int i = 0; i < itemCount; i++)
             {
-                // Create the item and parent it to the order queue
-                GameObject newItem = Instantiate(itemPrefab, orderQueueParent);
-                newItem.GetComponent<RectTransform>().localScale = Vector3.one;
+                GameObject newItem = Instantiate(itemPrefab);
+                newItem.transform.SetParent(orderQueueParent, false); // False ensures RectTransform properties are preserved
+                newItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero; // Reset to start at the top of the Scroll View
+
             }
         }
     }
