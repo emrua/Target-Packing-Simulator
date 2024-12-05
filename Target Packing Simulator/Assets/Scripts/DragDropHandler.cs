@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DragDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -11,10 +12,25 @@ public class DragDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private void Start()
     {
         canvas = GetComponentInParent<Canvas>();
-        canvasGroup = gameObject.AddComponent<CanvasGroup>(); // Add if missing
 
-        // Reference to the Packing Area (set this in the Inspector or find it dynamically)
-        packingArea = GameObject.Find("PackingArea").GetComponent<RectTransform>();
+    // Only add CanvasGroup if it doesn't already exist
+    canvasGroup = GetComponent<CanvasGroup>();
+    if (canvasGroup == null)
+    {
+        canvasGroup = gameObject.AddComponent<CanvasGroup>();
+    }
+
+    // Find the Packing Area
+    GameObject packingAreaObject = GameObject.Find("PackingArea");
+    if (packingAreaObject != null)
+    {
+        packingArea = packingAreaObject.GetComponent<RectTransform>();
+        Debug.Log("PackingArea found and assigned.");
+    }
+    else
+    {
+        Debug.LogError("PackingArea not found. Check the name in the Hierarchy.");
+    }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -34,20 +50,30 @@ public class DragDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         transform.position = Input.mousePosition; // Follow the mouse
     }
 
+    
     public void OnEndDrag(PointerEventData eventData)
-    {
-        // Check if the item is within the Packing Area
-        if (RectTransformUtility.RectangleContainsScreenPoint(packingArea, Input.mousePosition, canvas.worldCamera))
-        {
-            // If inside the Packing Area, reparent to it
-            transform.SetParent(packingArea);
-        }
-        else
-        {
-            // Otherwise, return to the original parent (Scroll View Content)
-            transform.SetParent(originalParent);
-        }
+{
+    canvasGroup.blocksRaycasts = true; // Re-enable raycasts
 
-        canvasGroup.blocksRaycasts = true; // Re-enable raycasts
+    // Log mouse position and packing area bounds
+    Debug.Log($"Mouse Position: {Input.mousePosition}");
+    Debug.Log($"Packing Area Screen Rect: {packingArea.position}, Size: {packingArea.rect.size}");
+
+    // Check if the mouse is over the Packing Area
+    if (RectTransformUtility.RectangleContainsScreenPoint(packingArea, Input.mousePosition, null))
+    {
+        transform.SetParent(packingArea);
+        Debug.Log("Item placed in Packing Area.");
+    }
+    else
+    {
+        transform.SetParent(originalParent);
+        Debug.Log("Dropped outside Packing Area. Returning to original position.");
     }
 }
+
+
+
+}
+
+

@@ -16,19 +16,26 @@ public class OrderQueueManager : MonoBehaviour
     }
 
     void PopulateOrderQueue()
+{
+    int totalItemsToSpawn = 7; // Total items to spawn
+    List<GameObject> allItems = new List<GameObject>();
+
+    // Populate the allItems list with random items from itemPrefabs
+    for (int i = 0; i < totalItemsToSpawn; i++)
     {
-        foreach (GameObject itemPrefab in itemPrefabs)
-        {
-            // Generate a random number of this item
-            int itemCount = Random.Range(minItems, maxItems + 1);
-
-            for (int i = 0; i < itemCount; i++)
-            {
-                GameObject newItem = Instantiate(itemPrefab);
-                newItem.transform.SetParent(orderQueueParent, false); // False ensures RectTransform properties are preserved
-                newItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero; // Reset to start at the top of the Scroll View
-
-            }
-        }
+        // Pick a random item from the prefabs
+        GameObject randomItem = itemPrefabs[Random.Range(0, itemPrefabs.Count)];
+        allItems.Add(randomItem);
     }
+
+    // Instantiate the selected items in the order queue
+    foreach (GameObject itemPrefab in allItems)
+    {
+        GameObject newItem = Instantiate(itemPrefab);
+        newItem.transform.SetParent(orderQueueParent, false); // Maintain RectTransform properties
+        newItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero; // Reset position
+    }
+}
+
+
 }

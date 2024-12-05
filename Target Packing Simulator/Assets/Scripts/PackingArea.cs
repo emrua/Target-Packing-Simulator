@@ -1,10 +1,20 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class DropZone : MonoBehaviour, IDropHandler
+public class PackingArea : MonoBehaviour, IDropHandler
 {
     public void OnDrop(PointerEventData eventData)
     {
-        Debug.Log("Item dropped into the zone!");
+        GameObject droppedItem = eventData.pointerDrag; // The dragged object
+        if (droppedItem != null)
+        {
+            Debug.Log($"Item dropped into the Packing Area: {droppedItem.name}");
+        }
+        else
+        {
+            Debug.LogWarning("Dropped object is null.");
+        }
     }
+
 }
