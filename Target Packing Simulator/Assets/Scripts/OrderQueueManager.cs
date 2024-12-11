@@ -1,41 +1,55 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class OrderQueueManager : MonoBehaviour
 {
-    public List<GameObject> itemPrefabs; // Prefabs for each packing item (assign in Inspector)
-    public Transform orderQueueParent;  // Parent object (OrderQueue) to hold items
-    public int minItems = 1;            // Minimum items per type
-    public int maxItems = 5;            // Maximum items per type
+    public List<GameObject> itemPrefabs; // Prefabs for each packing item
+    public Transform Content;  // Parent object to hold items (must be assigned in the Inspector)
 
-
-    void Start()
+    private void Start()
     {
-        PopulateOrderQueue();
+        // If Content is not assigned in the Inspector, attempt to find it dynamically
+        if (Content == null)
+        {
+            Content = GameObject.Find("Content")?.transform; // Replace "Content" with the name of your Content GameObject
+            if (Content == null)
+            {
+                Debug.LogError("Content could not be found dynamically! Ensure it's properly named and in the hierarchy.");
+                return;
+            }
+            else
+            {
+                Debug.Log($"Content assigned dynamically: {Content.name}");
+            }
+        }
+        else
+        {
+            Debug.Log($"Content is assigned: {Content.name}");
+        }
     }
 
-    void PopulateOrderQueue()
-{
-    int totalItemsToSpawn = 7; // Total items to spawn
-    List<GameObject> allItems = new List<GameObject>();
 
-    // Populate the allItems list with random items from itemPrefabs
-    for (int i = 0; i < totalItemsToSpawn; i++)
+    public void ClearOrderQueue()
     {
-        // Pick a random item from the prefabs
-        GameObject randomItem = itemPrefabs[Random.Range(0, itemPrefabs.Count)];
-        allItems.Add(randomItem);
+        Debug.Log("Clearing order queue...");
+        foreach (Transform child in Content) // Use Content directly to clear children
+        {
+            Destroy(child.gameObject);
+        }
     }
 
-    // Instantiate the selected items in the order queue
-    foreach (GameObject itemPrefab in allItems)
+    public void PopulateOrderQueue(int totalItems)
     {
-        GameObject newItem = Instantiate(itemPrefab);
-        newItem.transform.SetParent(orderQueueParent, false); // Maintain RectTransform properties
-        newItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero; // Reset position
+        Debug.Log($"Populating order queue with {totalItems} items...");
+
+        for (int i = 0; i < totalItems; i++)
+        {
+            // Randomly select an item prefab
+            GameObject randomItemPrefab = itemPrefabs[Random.Range(0, itemPrefabs.Count)];
+
+            // Instantiate and add it to the Content GameObject
+            GameObject newItem = Instantiate(randomItemPrefab, Content, false);
+            newItem.name = $"Item {i + 1}";
+        }
     }
-}
-
-
 }
